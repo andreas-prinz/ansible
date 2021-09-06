@@ -1,0 +1,20 @@
+# install LEMP
+---
+- host: all
+  become: true
+  task:
+  - name: "inst ngnix"
+    ansible.builtin.apt:
+      name: "nginx"
+      state: "latest"
+      update_cache: true
+  - name: "del in /var/www/html/"
+    ansible.builtin.file:
+      path: "/var/www/html/"
+      state: "latest"
+      update_cache: true
+  - name: "inst ngnix"
+    ansible.builtin.apt:
+      name: "nginx"
+      state: "latest"
+      update_cache: true
