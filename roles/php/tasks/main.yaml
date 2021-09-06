@@ -1,0 +1,30 @@
+- name: "inst php fpm and php mysql"
+    ansible.builtin.apt:
+      name: "{{ item }}"
+      state: "latest"
+      update_cache: true
+    with_items:
+      - "php-fpm"
+      - "php-mysql"
+
+- name: "copy php files"
+  ansible.builtin.copy:
+    scr: "files/php/test/"
+    dist: "/var/www/html/"
+    owner: "www-data"
+    group: "www-data"
+    mode: "0644"
+
+- name: "copy php conf files"
+  ansible.builtin.copy:
+    scr: "files/php/nginx.conf"
+    dist: "/etc/nginx/sites-available/php.conf"
+    owner: "www-data"
+    group: "www-data"
+    mode: "0644"
+
+- name: "greate link file"
+  ansible.builtin.file:
+    scr: "/etc/nginx/sites-available/php.conf"
+    dist: "/etc/nginx/sites-enabled/php.conf"
+    state: "link"
