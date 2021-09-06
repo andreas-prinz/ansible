@@ -1,3 +1,7 @@
+# command example:
+# ansible-playbook playbook.yaml -i host.ini
+# ansible-playbook playbook.yaml -i host.ini --start-at-task "inst php-fpm and php-mysql"
+# ansible-galaxy collection install community.mysql
 # install LEMP
 ---
 - host: all
