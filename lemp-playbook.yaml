@@ -8,13 +8,84 @@
       name: "nginx"
       state: "latest"
       update_cache: true
+
   - name: "del in /var/www/html/"
     ansible.builtin.file:
       path: "/var/www/html/"
-      state: "latest"
-      update_cache: true
-  - name: "inst ngnix"
-    ansible.builtin.apt:
+      state: "absent"
+
+  - name: "copy sites files"
+    ansible.builtin.copy:
+      scr: "files/html/"
+      dist: "/var/www/html/"
+      owner: "www-data"
+      group: "www-data"
+      mode: "0644"
+
+  - name: "inst mysql and pymysql"
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: "latest"
+        update_cache: true
+      with_items:
+        - "mysql-server"
+          "python3-mymysql"
+
+  - name: "user in mysql"
+      community.mysql.mysql_user:
+        name: "root"
+        password: "pass"
+        login_user: "root"
+        login_password: "pass"
+        check_implicit_admin: true
+        login_unix_socket: "/var/run/mysqld/mysqld.sock"
+
+  - name: "remove anonym users"
+      community.mysql.mysql_user:
+        name: ""
+        state: "absent"
+        login_user: "root"
+        login_password: "pass"
+
+  - name: "remove test db"
+      community.mysql.mysql_db:
+        name: "test"
+        state: "absent"
+        login_user: "root"
+        login_password: "pass"
+
+  - name: "inst php fpm and php mysql"
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: "latest"
+        update_cache: true
+      with_items:
+        - "php-fpm"
+        - "php-mysql"
+
+  - name: "copy php files"
+    ansible.builtin.copy:
+      scr: "files/php/test/"
+      dist: "/var/www/html/"
+      owner: "www-data"
+      group: "www-data"
+      mode: "0644"
+
+  - name: "copy php conf files"
+    ansible.builtin.copy:
+      scr: "files/php/nginx.conf"
+      dist: "/etc/nginx/sites-available/php.conf"
+      owner: "www-data"
+      group: "www-data"
+      mode: "0644"
+
+  - name: "greate link file"
+    ansible.builtin.file:
+      scr: "/etc/nginx/sites-available/php.conf"
+      dist: "/etc/nginx/sites-enabled/php.conf"
+      state: "link"
+
+  - name: "reload nginx"
+    ansible.builtin.service:
       name: "nginx"
-      state: "latest"
-      update_cache: true
+      state: "reloaded"
